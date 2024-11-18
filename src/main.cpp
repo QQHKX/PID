@@ -105,27 +105,56 @@ void Move_stop(void) {
   Right3.stop(brake);
 }
 
-// 使用PID控制机器人前进
-void moveForwardPID(double targetDistance) {
-  targetDistance = degreesToMillimeters(targetDistance);
-  double kP = 1.4, kI = 0.01, kD = 0.8; // PID控制参数
-  double integral = 0, previousError = 0;
+// 使用PID控制机器人前进（以毫米为单位）
+void moveForwardPID(double targetDistanceMM) {
+  const double wheelDiameterMM = 100.0; // 假设轮子直径为100毫米
+  const double wheelCircumferenceMM = M_PI * wheelDiameterMM; // 计算轮子周长
 
-  while (true) {
-    double currentDistance = (Left1.position(degrees) + Right1.position(degrees)) / 2.0;
-    double error = targetDistance - currentDistance;
-    if (fabs(error) < 5) break;  // 如果误差小于5则退出
+  // PID控制参数
+  double kP = 1.4;  // 比例增益
+  double kI = 0.01; // 积分增益
+  double kD = 0.8;  // 微分增益
 
+  double integral = 0;               // 积分项
+  double previousError = 0;          // 上一次误差
+  double error = targetDistanceMM;   // 初始化误差为目标距离
+  double toleranceMM = 5.0;          // 容忍误差范围（毫米）
+
+  while (fabs(error) > toleranceMM) {
+    // 获取当前平均距离（将编码器角度转换为毫米）
+    double leftPositionMM = (Left1.position(degrees) / 360.0) * wheelCircumferenceMM;
+    double rightPositionMM = (Right1.position(degrees) / 360.0) * wheelCircumferenceMM;
+    double currentDistanceMM = (leftPositionMM + rightPositionMM) / 2.0;
+
+    // 计算误差
+    error = targetDistanceMM - currentDistanceMM;
+
+    // 计算积分项并防止积分饱和
     integral += error;
+    if (fabs(integral) > 5000) { // 限制积分累计值
+      integral = (integral > 0) ? 5000 : -5000;
+    }
+
+    // 计算微分项
     double derivative = error - previousError;
     previousError = error;
 
-    double forwardSpeed = kP * error + kI * integral + kD * derivative;
+    // 计算输出速度
+    double outputSpeed = kP * error + kI * integral + kD * derivative;
 
-    Move(forwardSpeed, forwardSpeed);  // 控制底盘运动
-    wait(20, msec); // 确保循环不占用过多资源
+    // 限制速度输出范围
+    if (outputSpeed > 100) outputSpeed = 100;
+    if (outputSpeed < -100) outputSpeed = -100;
+
+    // 控制电机前进
+    Move(outputSpeed, outputSpeed);
+
+    // 等待一段时间（20ms）以确保控制器的稳定性
+    wait(20, msec);
   }
-  Move_stop(); // 停止底盘
+
+  // 停止机器人
+  Move_stop();
 }
 
 // 使用PID控制机器人转向
@@ -157,6 +186,7 @@ void autonomous(void) {
   InertialSensor.setRotation(0, degrees); // 重置惯性传感器
 
   moveForwardPID(1000);  // 前进1000毫米
+  wait(20, msec);
   turnToAngle(90);       // 右转90度
 }
 
