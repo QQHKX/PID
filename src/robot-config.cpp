@@ -19,7 +19,7 @@ motor Roller2 = motor(PORT4, ratio18_1, true);
 motor Arm = motor(PORT2, ratio36_1, true);
 digital_out A = digital_out(Brain.ThreeWirePort.A);
 controller Controller1 = controller(primary);
-inertial InertialSensor = inertial(PORT11);
+inertial InertialSensor = inertial(PORT20);
 
 // VEXcode generated functions
 // define variable for remote controller enable/disable
