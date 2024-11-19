@@ -110,16 +110,19 @@ double integral = 0;
 void autonomous(void) {
   EncoderInit(); 
   InertialSensor.setRotation(0, degrees); // 重置惯性传感器
-  InertialSensorMove(100.0,100.0,0);
-  wait(1000,msec);
-  InertialSensor.setRotation(0, degrees);
-  while(true)
-  {
-    turnToAngle(45);
-  }
-  Stop();
-    // 前进1000毫米;
-  wait(20, msec);
+  InertialSensorMove(50.0,55.0,0);//前进50mm
+  Arm.spin(fwd,90, pct); // 下降
+  wait(1000, msec); // 等待1000毫秒
+  InertialSensorMove(-100.0,1070.0,-5);
+  Arm.spin(reverse, 50, pct); // 上升
+  A.set(true);  // 打开夹子
+  wait(500, msec); // 等待1000毫秒
+  A.set(false); // 关闭夹子
+
+  
+  
+ 
+  
   //turnToAngle(90);       // 右转90度
 }
 
