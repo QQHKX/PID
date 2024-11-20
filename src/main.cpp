@@ -58,6 +58,7 @@ void EncoderInit() {
 void pre_auton(void) {
   vexcodeInit();  // 初始化VEX设备
   EncoderInit();  // 初始化电机参数
+  InertialSensor.setRotation(0, degrees); // 重置惯性传感器
   wait(2000, timeUnits::msec);  // 等待2秒，确保初始化完成
 }
 
@@ -70,7 +71,7 @@ void pre_auton(void) {
 // 使用PID控制机器人转向
 void turnToAngle(double targetAngle) {
   // PID 控制参数
-double kP = 1.5;  // 比例常数
+double kP = 1.0;  // 比例常数
 double kI = 0.0092; // 积分常数
 double kD = 3.2;  // 微分常数
 
@@ -108,9 +109,41 @@ double integral = 0;
 /*                          自动驾驶控制部分                                   */
 /*---------------------------------------------------------------------------*/
 void autonomous(void) {
-  EncoderInit(); 
-  InertialSensor.setRotation(0, degrees); // 重置惯性传感器
- 
+  A.set(true); // 打开电磁夹
+  InertialSensorMove(-75.0,830,0);
+  wait(600, msec);
+  A.set(false); // 关闭电磁夹
+  Roller1.spin(fwd,-70,pct);
+  wait(1200, msec);
+  InertialSensorTurn(-90.0);
+  // Roller2.spin(fwd,-100,pct);
+  // //InertialSensorMove(80.0,700.0,0);
+  // wait(500, msec);
+  InertialSensorMove(-75.0,130,0);
+  A.set(true);
+  Roller2.spin(fwd,-100,pct);
+  wait(300, msec);
+  InertialSensorMove(80.0,1100,0);
+  wait(1500, msec);
+  Roller1.stop();
+  InertialSensorTurn(90.0);
+  wait(500, msec);
+  InertialSensorMove(-70.0,700.0,0);
+  wait(500, msec);
+  A.set(false); // 关闭电磁夹
+  Roller1.spin(fwd,-70,pct);
+  InertialSensorMove(100.0,500.0,0);
+  wait(1000, msec);
+  InertialSensorTurn(90.0);
+  wait(500, msec);
+  Arm.spin(fwd,100,pct);
+  InertialSensorMove(100.0,1100.0,0);
+  Arm.stop(brake);
+
+
+
+
+
 
   
   
@@ -155,9 +188,9 @@ void drivercontrol(void) {
     Button_R2 = Controller1.ButtonR2.pressing();
 
     if (Button_A) {
-      Arm.spin(fwd, 50, pct); // 上升
+      Arm.spin(fwd, 100, pct); // 上升
     } else if (Button_B) {
-      Arm.spin(reverse, 50, pct); // 下降
+      Arm.spin(reverse, 100, pct); // 下降
     } else {
       Arm.stop(hold); // 保持位置
     }
@@ -175,8 +208,8 @@ void drivercontrol(void) {
     }
     else if (Button_R1) 
     {
-     Roller1.spin(fwd,-100,pct);
-     Roller2.spin(fwd,-100,pct);
+     Roller1.spin(fwd,-100,pct);//运球
+     Roller2.spin(fwd,-100,pct);//吸球
      
     }
     

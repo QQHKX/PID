@@ -134,14 +134,22 @@ void drawResult(int this_time, int all_time, int value, int target){
 /*PID算法直行
 @param degree 目标值需要转动的角度
 @param compute_time 需要计算的次数，可以修改wait时间调整精度
-@param power PID输出数值对应马达功率的比率
+@param power PID输出数值对应马达功率 的比率
 @param Kp，Ki，Kd PID参数
 返回空
 */
-void pidForward(int degree, int compute_time, int power, float Kp, float Ki, float Kd){
+double degreesToMillimeters(double distanceMM)
+{
+  const double wheelDiameterMM = 80.0; // 例如，轮子直径为80毫米
+    double circumferenceMM = M_PI * wheelDiameterMM; // 计算轮子周长（毫米）
+    double distancedgree = (distanceMM*360) / circumferenceMM; // 计算线性距离（毫米）
+    return distancedgree;
+}
+void pidForward(int power, int compute_time, int distance){
+  float Kp= 0.5;float Ki=0.7;float Kd=1.2;
+  double degree = degreesToMillimeters(distance);
   PID pos_pid;
   pid_init(Kp, Ki, Kd, &pos_pid);
-
   pos_pid.set_value = degree;
   EncoderReset();
   drawFram();

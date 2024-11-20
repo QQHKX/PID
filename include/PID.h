@@ -14,7 +14,7 @@ typedef struct PID_
     float integral;         //积分值
 }PID;
 void pid_init(double kp, double ki, double kd, PID *pid);
-void pidForward(int degree, int compute_time, int power, float Kp, float ki, float kd);
+void pidForward(int power, int compute_time, int distance);
 void pidTurn(int degree, int compute_time, int power, float Kp, float ki, float kd);
 void drawFram();
 void drawResult(int this_time, int all_time, int value, int target);
