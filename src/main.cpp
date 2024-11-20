@@ -110,14 +110,7 @@ double integral = 0;
 void autonomous(void) {
   EncoderInit(); 
   InertialSensor.setRotation(0, degrees); // 重置惯性传感器
-  InertialSensorMove(50.0,55.0,0);//前进50mm
-  Arm.spin(fwd,90, pct); // 下降
-  wait(1000, msec); // 等待1000毫秒
-  InertialSensorMove(-100.0,1070.0,-5);
-  Arm.spin(reverse, 50, pct); // 上升
-  A.set(true);  // 打开夹子
-  wait(500, msec); // 等待1000毫秒
-  A.set(false); // 关闭夹子
+ 
 
   
   
@@ -152,11 +145,14 @@ void thread_Move() {
 void drivercontrol(void) {
   thread task1(thread_Move); // 启动底盘控制线程
   bool Button_A, Button_L1, Button_B;
+  bool Button_R1, Button_R2;
 
   while (true) {
     Button_A = Controller1.ButtonA.pressing();
     Button_L1 = Controller1.ButtonL1.pressing();
     Button_B = Controller1.ButtonB.pressing();
+    Button_R1 = Controller1.ButtonR1.pressing();
+    Button_R2 = Controller1.ButtonR2.pressing();
 
     if (Button_A) {
       Arm.spin(fwd, 50, pct); // 上升
@@ -171,6 +167,26 @@ void drivercontrol(void) {
     } else {
       A.set(false); // 关闭夹子
     }
+    
+    if (Button_R2)
+    {
+     Roller1.spin(fwd,100,pct);
+     Roller2.spin(fwd,100,pct);
+    }
+    else if (Button_R1) 
+    {
+     Roller1.spin(fwd,-100,pct);
+     Roller2.spin(fwd,-100,pct);
+     
+    }
+    
+    else 
+    {
+      Roller1. stop(coast);
+      Roller2.stop(coast);
+    }//滚筒
+
+    
 
     wait(20, msec);
   }
